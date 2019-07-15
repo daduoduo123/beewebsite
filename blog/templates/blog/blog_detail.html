@@ -160,9 +160,11 @@
                 CKEDITOR.instances['id_text'].focus();
             });
         }
+
         function numFormat(num){
             return ('00' + num).substr(-2);
         }
+
         function timeFormat(timestamp){
             var datetime = new Date(timestamp * 1000);
             var year = datetime.getFullYear();
@@ -173,6 +175,7 @@
             var second = numFormat(datetime.getSeconds());
             return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
         }
+
         $("#comment_form").submit(function(){
             // 判断是否为空
             $("#comment_error").text('');
@@ -243,6 +246,7 @@
             });
             return false;
         });
+
         function likeChange(obj, content_type, object_id){
             var is_like = obj.getElementsByClassName('active').length == 0
             $.ajax({
@@ -269,7 +273,7 @@
                         liked_num.text(data['liked_num']);
                     }else{
                         if(data['code']==400){
-                            $('#login_modal').modal('show');
+                            window.location.href='{% url 'login:login' %}?from{{ prequest.GET.from }}';
                         } else{
                             alert(data['message']);
                         }
@@ -280,8 +284,12 @@
                 }
             });
         }
-        $("#login_modal_form").submit(function(event){
-            event.preventDefault();
-        });
+
+        if (window.location.hash){
+            $('html').animate({
+                scrollTop: $('#comment_form').offset().top - 60
+            }, 500,);
+        }
+
     </script>
 {% endblock %}

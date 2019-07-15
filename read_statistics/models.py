@@ -7,11 +7,15 @@ from django.utils import timezone
 
 # Create your models here.
 class ReadNum(models.Model):
-    read_num = models.IntegerField(default=0)
+    read_num = models.IntegerField(default=0, verbose_name='阅读数')
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name='文章类型')
+    object_id = models.PositiveIntegerField(verbose_name='对象pk')
     content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta():
+        verbose_name = '阅读数'
+        verbose_name_plural = verbose_name
 
 
 class ReadNumExpandMethod():
@@ -25,9 +29,13 @@ class ReadNumExpandMethod():
 
 
 class ReadDetail(models.Model):
-    date = models.DateTimeField(default=timezone.now)
-    read_num = models.IntegerField(default=0)
+    date = models.DateTimeField(default=timezone.now, verbose_name='阅读时间')
+    read_num = models.IntegerField(default=0, verbose_name='阅读数')
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta():
+        verbose_name = '阅读记录'
+        verbose_name_plural = verbose_name

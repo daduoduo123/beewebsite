@@ -9,23 +9,30 @@ from read_statistics.models import ReadNumExpandMethod, ReadDetail
 
 # Create your models here.
 class BlogType(models.Model):
-    type_name = models.CharField(max_length=64)
+    type_name = models.CharField(max_length=64,verbose_name='博客类型')
 
     def __str__(self):
         return self.type_name
 
+    class Meta:
+        verbose_name = '博客类型'
+        verbose_name_plural = verbose_name
+
 
 class Blog(models.Model, ReadNumExpandMethod):
-    title = models.CharField(max_length=64)
-    content = RichTextUploadingField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    c_time = models.DateTimeField(auto_now_add=False)
-    update_time = models.DateTimeField(auto_now=True)
-    blog_type = models.ForeignKey(BlogType, on_delete=models.CASCADE)
-    read_detail = GenericRelation(ReadDetail)
+    title = models.CharField(max_length=64,verbose_name='标题')
+    content = RichTextUploadingField(verbose_name='内容')
+    author = models.ForeignKey(User, on_delete=models.CASCADE,verbose_name='作者')
+    c_time = models.DateTimeField(auto_now_add=False,verbose_name='创建时间')
+    update_time = models.DateTimeField(auto_now=True,verbose_name='更新时间')
+    blog_type = models.ForeignKey(BlogType, on_delete=models.CASCADE,verbose_name='博客类型')
+    read_detail = GenericRelation(ReadDetail,verbose_name='阅读详情')
 
     def __str__(self):
         return self.title
+
+    def get_user(self):
+        return self.author
 
     def get_url(self):
         return reverse('blog:blog_detail', kwargs={'blog_pk': self.pk})
@@ -35,3 +42,5 @@ class Blog(models.Model, ReadNumExpandMethod):
 
     class Meta:
         ordering = ['-c_time']
+        verbose_name = '博客'
+        verbose_name_plural = verbose_name

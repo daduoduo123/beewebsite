@@ -1,10 +1,11 @@
 from django import forms
 from django.contrib import auth
 from django.contrib.auth.models import User
+from .models import OAuthRelationship
 
 
 class LoginForm(forms.Form):
-    username_or_email = forms.CharField(label='用户名',
+    username_or_email = forms.CharField(label='用户名或邮箱',
                                         widget=forms.TextInput(
                                             attrs={'class': 'form-control', 'placeholder': '请输入用户名或邮箱'}))
     password = forms.CharField(label='密码',
@@ -36,7 +37,11 @@ class RegForm(forms.Form):
                                min_length=3,
                                widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '请输入3-30位用户名'}))
     email = forms.EmailField(label='邮箱',
-                            widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': '请输入邮箱'}))
+                             widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': '请输入邮箱'}))
+    verification_code = forms.CharField(label='验证码',
+                                        required=False,
+                                        widget=forms.TextInput(
+                                            attrs={'class': 'form-control', 'placeholder': '点击发送验证码'}))
     password = forms.CharField(label='密码',
                                min_length=6,
                                widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '请输入密码'}))
@@ -44,10 +49,6 @@ class RegForm(forms.Form):
                                      min_length=6,
                                      widget=forms.PasswordInput(
                                          attrs={'class': 'form-control', 'placeholder': '请再次输入密码'}))
-    verification_code = forms.CharField(label='验证码',
-                                        required=False,
-                                        widget=forms.TextInput(
-                                            attrs={'class': 'form-control', 'placeholder': '点击发送验证码'}))
 
     def __init__(self, *args, **kwargs):
         if 'request' in kwargs:
@@ -200,7 +201,7 @@ class ChangePasswordForm(forms.Form):
 
 class ForgotPasswordForm(forms.Form):
     email = forms.EmailField(label='邮箱',
-                               widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '请输入用户名邮箱'}))
+                             widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '请输入用户名邮箱'}))
 
     password_new = forms.CharField(label='新密码',
                                    min_length=6,
@@ -230,3 +231,33 @@ class ForgotPasswordForm(forms.Form):
         if not (code != '' and code == verification_code):
             raise forms.ValidationError('验证码不正确')
         return verification_code
+
+
+class BindQQForm(forms.Form):
+    username_or_email = forms.CharField(label='用户名或邮箱',
+                                        widget=forms.TextInput(
+                                            attrs={'class': 'form-control', 'placeholder': '请输入用户名或邮箱'}))
+    password = forms.CharField(label='密码',
+                               widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '请输入用密码'}))
+
+    def clean(self):
+        username_or_email = self.cleaned_data.get('username_or_email')
+        password = self.cleaned_data.get('password')
+
+        user = auth.authenticate(username=username_or_email, password=password)
+        if user is None:
+            if User.objects.filter(email=username_or_email).exists():
+                username = User.objects.get(email=username_or_email).username
+                user = auth.authenticate(username=username, password=password)
+                if user is None:
+                    raise forms.ValidationError('用户名或密码不正确')
+                else:
+                    self.cleaned_data['user'] = user
+            else:
+                raise forms.ValidationError('用户名或密码不正确')
+        else:
+            self.cleaned_data['user'] = user
+
+        if OAuthRelationship.objects.filter(user=user, oauth_type=0).exists():
+            raise forms.ValidationError('该用户已经绑定QQ账号')
+        return self.cleaned_data

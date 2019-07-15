@@ -5,7 +5,6 @@ app_name = 'login'
 urlpatterns = [
     path("", views.login, name='login'),
     path('register/', views.register, name='register'),
-    path('login_for_modal/', views.login_for_medal, name='login_for_modal'),
     path('logout/', views.logout, name='logout'),
     path('user_info/', views.user_info, name='user_info'),
     path('change_nickname/', views.change_nickname, name='change_nickname'),
@@ -13,4 +12,9 @@ urlpatterns = [
     path('send_email_code/',views.send_verification_code, name='send_email_code'),
     path('change_password/', views.change_password, name='change_password'),
     path('forget_password/', views.forget_password, name='forget_password'),
+    path('login_by_qq',views.login_by_qq, name='login_by_qq'), # hwjbee.fun/login/login_by_qq
+    path('login_by_weixin', views.login_by_weixin, name='login_by_weixin'),  # hwjbee.fun/login/login_by_weixin
+    path('bind_qq', views.bind_qq, name='bind_qq'),
+    path('create_user_by_qq', views.create_user_by_qq, name='create_user_by_qq')
+
 ]

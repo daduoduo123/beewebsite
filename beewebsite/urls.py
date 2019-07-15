@@ -27,6 +27,9 @@ urlpatterns = [
     path('comment/', include('comment.urls')),  # 评论路由分发
     path('login/', include('login.urls')),  # 登录注册路由分发
     path('likes/', include('likes.urls')),  # 点赞路由分发
+    path('my_notifications/', include('my_notifications.urls')),  # 站内提醒分发
+    path('notifications/', include('notifications.urls', namespace='notifications')), # 站内提醒通知
+    path('search/', views.search, name='search')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

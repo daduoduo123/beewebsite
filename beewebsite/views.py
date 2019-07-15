@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-
+from django.core.paginator import Paginator
+from django.conf import settings
 from blog.models import Blog
+from django.db.models import Q
 from read_statistics.utils import get_today_hot_data, get_seven_days_read_data, get_yesterday_hot_data, \
     get_7_days_hot_blogs, get_30_days_hot_blogs
 
@@ -30,3 +32,31 @@ def home(request):
     context['hot_blogs_for_7_days'] = hot_blogs_for_7_days
     context['hot_blogs_for_30_days'] = hot_blogs_for_30_days
     return render(request, 'home.html', context)
+
+def search(request):
+    search_word = request.GET.get('wd', '')
+    # 分词：按空格
+    condition = None
+    for word in search_word.split(' '):
+        if condition is None:
+            condition = Q(title__icontains=word)
+        else:
+            condition = condition | Q(title__icontains=word)
+
+    # 筛选：搜索
+    if condition is not None:
+        search_blogs = Blog.objects.filter(condition)
+
+    # 分页
+    paginator = Paginator(search_blogs, settings.EACH_PAGE_BLOGS_NUMBER)
+    page_num = request.GET.get('page', 1)
+    page_of_blogs = paginator.get_page(page_num)
+
+    context = {}
+    context['search_word']=search_word
+    context['page_of_blogs']=page_of_blogs
+    context['search_blogs_count']=search_blogs.count()
+    return render(request, 'search.html', context)
+
+
+
