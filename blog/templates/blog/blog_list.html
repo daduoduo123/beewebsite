@@ -2,7 +2,7 @@
 {% block title %}我的网站{% endblock %}
 {% block nav_blog_active %}active{% endblock %}
 
-{% load staticfiles %}
+{% load static %}
 {% load comment_tags %}
 {% load likes_tags %}
 
@@ -108,6 +108,23 @@
                             {% endfor %}
                         </ul>
                     </div>
+                </div>
+                <div class="panel panel-default">
+                <div class="panel-heading">标签云</div>
+                    <div class="panel-body">
+                        <ul>
+                            {% for tag in blog_tags %}
+                                <span >
+                                    <a style="color:#{{ color_int }}" href="{% url 'blog:blogs_with_tag' tag.pk %}">{{ tag.name }}</a>
+                                </span>&nbsp;&nbsp;&nbsp;&nbsp;
+                            {% empty %}
+                            暂无标签！
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div style="font-size: 20px; margin-left: 5px">
+                    <a href="{% url 'blog:rss' %}"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> RSS 订阅</a>
                 </div>
             </div>
         </div>

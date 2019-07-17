@@ -33,30 +33,38 @@ def home(request):
     context['hot_blogs_for_30_days'] = hot_blogs_for_30_days
     return render(request, 'home.html', context)
 
-def search(request):
-    search_word = request.GET.get('wd', '')
-    # 分词：按空格
-    condition = None
-    for word in search_word.split(' '):
-        if condition is None:
-            condition = Q(title__icontains=word)
-        else:
-            condition = condition | Q(title__icontains=word)
+# 此时没有调用这个简单的分词视图
+# def search(request):
+#     search_word = request.GET.get('wd', '')
+#     # 分词：按空格
+#     condition = None
+#     for word in search_word.split(' '):
+#         if condition is None:
+#             condition = Q(title__icontains=word)
+#         else:
+#             condition = condition | Q(title__icontains=word)
+#
+#     # 筛选：搜索
+#     if condition is not None:
+#         search_blogs = Blog.objects.filter(condition)
+#
+#     # 分页
+#     paginator = Paginator(search_blogs, settings.EACH_PAGE_BLOGS_NUMBER)
+#     page_num = request.GET.get('page', 1)
+#     page_of_blogs = paginator.get_page(page_num)
+#
+#     context = {}
+#     context['search_word']=search_word
+#     context['page_of_blogs']=page_of_blogs
+#     context['search_blogs_count']=search_blogs.count()
+#     return render(request, 'search.html', context)
 
-    # 筛选：搜索
-    if condition is not None:
-        search_blogs = Blog.objects.filter(condition)
+def contact(request):
+    context={}
+    return render(request, 'contact.html')
 
-    # 分页
-    paginator = Paginator(search_blogs, settings.EACH_PAGE_BLOGS_NUMBER)
-    page_num = request.GET.get('page', 1)
-    page_of_blogs = paginator.get_page(page_num)
-
-    context = {}
-    context['search_word']=search_word
-    context['page_of_blogs']=page_of_blogs
-    context['search_blogs_count']=search_blogs.count()
-    return render(request, 'search.html', context)
-
+def about(request):
+    context={}
+    return render(request, 'about.html')
 
 

@@ -21,6 +21,10 @@ from django.conf import settings
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('contact/', views.contact, name='contact'),
+    path('about/', views.about, name='about'),
+
+
     path('admin/', admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),  # 加载图片路由
     path('blog/', include('blog.urls')),  # 博客路由分发
@@ -29,7 +33,9 @@ urlpatterns = [
     path('likes/', include('likes.urls')),  # 点赞路由分发
     path('my_notifications/', include('my_notifications.urls')),  # 站内提醒分发
     path('notifications/', include('notifications.urls', namespace='notifications')), # 站内提醒通知
-    path('search/', views.search, name='search')
+    # path('search/', views.search, name='search') # 自己的分词查询
+    path('search/', include('haystack.urls',)) # 全文检索
 ]
+
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

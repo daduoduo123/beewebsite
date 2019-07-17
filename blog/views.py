@@ -1,9 +1,10 @@
+import random
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.db.models import Count
 
-from .models import Blog, BlogType
+from .models import Blog, BlogType, Tag
 from read_statistics.utils import read_statistics_once_read
 
 
@@ -36,11 +37,14 @@ def get_blog_list_common_data(request, blogs_all_list):
         blog_dates_dict[blog_date] = blog_count
 
     context = {}
+    tags = Tag.objects.all()
+    context['blog_tags'] = tags
     context['blogs'] = page_of_blogs.object_list  # 分页器的方法
     context['page_of_blogs'] = page_of_blogs
     context['page_range'] = page_range
     context['blog_types'] = BlogType.objects.annotate(blog_count=Count('blog'))
     context['blog_dates'] = blog_dates_dict
+    context['color_int'] =  random.randint(100000,999999)
     return context
 
 
@@ -77,3 +81,10 @@ def blogs_with_type(request, blog_type_pk):
     context = get_blog_list_common_data(request, blogs_all_list)
     context['blog_type'] = blog_type
     return render(request, 'blog/blogs_with_type.html', context)
+
+def blogs_with_tag(request, blog_tag_pk):
+    blog_tag = get_object_or_404(Tag, pk=blog_tag_pk)
+    blogs_all_list = Blog.objects.filter(tags=blog_tag)
+    context = get_blog_list_common_data(request,blogs_all_list)
+    context['blog_tag'] = blog_tag
+    return render(request, 'blog/blogs_with_tag.html', context)
