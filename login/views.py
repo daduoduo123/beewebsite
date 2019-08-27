@@ -10,10 +10,12 @@ from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
 from urllib.request import urlopen
-from urllib.parse import urlencode,parse_qs
+from urllib.parse import urlencode, parse_qs
 
-from .forms import RegForm, LoginForm, ChangeNicknameForm, BindEmailForm, ChangePasswordForm, ForgotPasswordForm,BindQQForm
+from .forms import RegForm, LoginForm, ChangeNicknameForm, BindEmailForm, ChangePasswordForm, ForgotPasswordForm, \
+    BindQQForm
 from .models import Profile, OAuthRelationship
+import requests
 
 
 # Create your views here.
@@ -104,7 +106,7 @@ def change_nickname(request):
     return render(request, 'form.html', context)
 
 
-#　用户绑定邮箱
+# 　用户绑定邮箱
 def bind_email(request):
     redirect_to = request.GET.get('from', reverse('home'))
     if request.method == 'POST':
@@ -208,6 +210,7 @@ def forget_password(request):
     context['return_back_url'] = reverse('home')
     return render(request, 'login/forget_password.html', context)
 
+
 def bind_qq(request):
     if request.method == 'POST':
         bind_qq_form = BindQQForm(request.POST)
@@ -221,19 +224,50 @@ def bind_qq(request):
             relationship.oauth_type = 0
             relationship.save()
             # 绑定
-            auth.login(request,user)
+            auth.login(request, user)
             return redirect(reverse('home'))
 
     else:
         bind_qq_form = BindQQForm()
         nickname = request.GET.get('nickname')
-        avatar =request.GET.get('avatar')
+        avatar = request.GET.get('avatar')
     context = {}
     context['nickname'] = nickname
     context['avatar'] = avatar
     context['bind_qq_form'] = bind_qq_form
     # context['return_back_url'] = reverse('home')
     return render(request, 'login/login_by_qq.html', context)
+
+
+# 微博登陆, 需要更改，
+def login_by_weibo(request):
+    code = request.GET.get('code', None)
+    if code is None:
+        return redirect(reverse('login:login'))
+    params = {
+        'client_id': settings.WB_CLIENT_ID,
+        'client_secret': settings.WB_ClIENT_SECRET,
+        'grant_type': 'authorization_code',
+        'redirect_uri': settings.WB_REDIRECT_URI,
+        'code': 'CODE'
+    }
+    access_token_url = 'https://api.weibo.com/oauth2/access_token?' + urlencode(params)
+    ret = request.post(access_token_url)
+    data = ret.text
+    data_dict = json.loads(data)
+    token = data_dict['access_token']
+    uid = data_dict['uid']
+    request.session['token'] = token
+    request.session['uid'] = uid
+    request.session['login'] = True
+
+    user_info_url = 'https://api.weibo.com/2/users/show.json?access_token=%s&uid%s' % (token, uid)
+    user_info = requests.get(user_info_url)
+    user_info_dict = json.loads(user_info.text)
+    request.session['screen_name'] = user_info_dict['screen_name']
+    request.session['profile_image_url'] = user_info_dict['profile_image_url']
+
+
 
 # qq绑定并创建新用户
 def create_user_by_qq(request):
@@ -268,29 +302,29 @@ def login_by_qq(request):
         raise Exception('state error')
 
     # 获取access_token
-    params ={
-        'grant_type':'authorization_code',
-        'client_id':settings.QQ_APP_ID,
+    params = {
+        'grant_type': 'authorization_code',
+        'client_id': settings.QQ_APP_ID,
         'client_secret': settings.QQ_APP_KEY,
         'code': code,
-        'redirect_url':settings.QQ_REDIRECT_URL,
+        'redirect_url': settings.QQ_REDIRECT_URL,
     }
-    url = 'https://graph.qq.com/oauth2.0/token?'+urlencode(params)
+    url = 'https://graph.qq.com/oauth2.0/token?' + urlencode(params)
     response = urlopen(url)
     data = parse_qs(response.read().decode('utf8'))
     # 获取qq返回给我们的
-    access_token =  data['access_token'][0] # 这个是必须要的,授权令牌
-    expires_in=data['expires_in'][0] # 有效期
-    refresh_token = data['refresh_token'][0] # 授权自动续期，获取新的token需要提供参数
+    access_token = data['access_token'][0]  # 这个是必须要的,授权令牌
+    expires_in = data['expires_in'][0]  # 有效期
+    refresh_token = data['refresh_token'][0]  # 授权自动续期，获取新的token需要提供参数
 
     # 获取openid
-    response = urlopen('https://graph.qq.com/oauth2.0/authorize?'+access_token)
+    response = urlopen('https://graph.qq.com/oauth2.0/authorize?' + access_token)
     data = response.read().decode('utf8')
     openid = json.load(data[10:-4])['openid']
 
     # 调用openid访问用户信息
     if OAuthRelationship.objects.filter(openid=openid, oauth_type=0).exists():
-        relationship = OAuthRelationship.objects.get(openid=openid,oauth_type=0)
+        relationship = OAuthRelationship.objects.get(openid=openid, oauth_type=0)
         auth.login(request, relationship.user)
         return redirect(reverse('home'))
     else:
@@ -299,15 +333,15 @@ def login_by_qq(request):
         params = {
             'access_token': access_token,
             'oauth_consumer_key': settings.QQ_APP_ID,
-            'openid':openid
+            'openid': openid
         }
-        response = urlopen('https://graph.qq.com/user/get_user_info?'+urlencode(params))
+        response = urlopen('https://graph.qq.com/user/get_user_info?' + urlencode(params))
         data = response.read().decode('utf8')
-        params ={
+        params = {
             'nickname': json.load(data).get('nickname'),
             'avatar': json.load(data).get('figureurl_qq_1'),
         }
-        return redirect(reverse('login:bind_qq')+'?' + urlencode(params))
+        return redirect(reverse('login:bind_qq') + '?' + urlencode(params))
 
 
 # 微信登录

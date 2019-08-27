@@ -12,105 +12,111 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-4 col-xs-offset-4">
-                    {% if not user.is_authenticated %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
+                {% if not user.is_authenticated %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
 
-                        <h3 class="panel-title">注册</h3>
-                    </div>
-                    <div class="panel-body">
-                        <form action="" method="POST">
-                            {% csrf_token %}
-                            {% for field in reg_form %}
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {% if field.id_for_label == 'id_email' %}
-                                    <div class="input-group">
-                                        {{ field }}
-                                        <span class="input-group-btn">
+                            <h3 class="panel-title">注册</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                {% for field in reg_form %}
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {% if field.id_for_label == 'id_email' %}
+                                        <div class="input-group">
+                                            {{ field }}
+                                            <span class="input-group-btn">
                                             <button id="send_code" class="btn btn-primary">发送验证码</button>
                                         </span>
-                                    </div>
+                                        </div>
 
-                                {% else %}
-                                    {{ field }}
-                                {% endif %}
+                                    {% else %}
+                                        {{ field }}
+                                    {% endif %}
 
-                                <p class="text-danger">{{ field.errors.as_text }}</p>
-                            {% endfor %}
-                            <span id="tip" class=" text-danger">{{ reg_form.non_field_errors }}</span>
-                            <div class="clearfix"></div>
-                             <div style="margin: 6px; display: inline-block">
+                                    <p class="text-danger">{{ field.errors.as_text }}</p>
+                                {% endfor %}
+                                <span id="tip" class=" text-danger">{{ reg_form.non_field_errors }}</span>
+                                <div class="clearfix"></div>
+                                <div style="margin: 6px; display: inline-block">
+                                    <a href="{% get_login_weibo_url %}">
+                                        <img src="{% static 'login/images/weibo.png' %}">
+                                        微博
+                                    </a>&nbsp;&nbsp;&nbsp;&nbsp;
                                     <a href="{% get_login_qq_url %}">
-                                    <img src="{% static 'login/images/qq.jpg' %}">
-                                    使用QQ登录
-                                </a>
-                                <a href="{% get_login_weixin_url %}">
-                                    <img src="{% static 'weixin.png' %}">
-                                    使用微信登录
-                                </a>
+                                        <img src="{% static 'login/images/qq.jpg' %}">
+                                        QQ
+                                    </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <a href="{% get_login_weixin_url %}">
+                                        <img src="{% static 'login/images/weixin.png' %}">
+                                        微信
+                                    </a>
                                 </div>
-                            <input type="submit" value="注册" class="btn btn-primary pull-right">
-                        </form>
+                                <input type="submit" value="注册" class="btn btn-primary pull-right">
+                            </form>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    {% if request.GET.from %}
-                        <a style="text-align: center; display: block;" href="{% url 'login:login' %}?from={{ request.GET.from }}">前往登录&gt;&gt;</a>
+                    <div>
+                        {% if request.GET.from %}
+                            <a style="text-align: center; display: block;"
+                               href="{% url 'login:login' %}?from={{ request.GET.from }}">前往登录&gt;&gt;</a>
                         {% else %}
-                        <a style="text-align: center; display: block;" href="{% url 'login:login' %}?from={{ request.get_full_path }}">前往登录&gt;&gt;</a>
-                    {% endif %}
-                </div>
+                            <a style="text-align: center; display: block;"
+                               href="{% url 'login:login' %}?from={{ request.get_full_path }}">前往登录&gt;&gt;</a>
+                        {% endif %}
+                    </div>
                 {% else %}
                     <span>已登录，跳转到首页</span>
                     <script type="text/javascript">
-                        window.location.href='/';
+                        window.location.href = '/';
                     </script>
                 {% endif %}
             </div>
         </div>
-    </div>    
+    </div>
 {% endblock %}
 {% block script_extends %}
     <script type="text/javascript">
         $("#send_code").click(function () {
             {#注意form表单自定义id#}
-           var email = $('#id_email').val();
-           {#alert(email)#}
-           if (email==''){
-               $('#tip').text('*邮箱不能为空*');
-               return false;
-           }
-           // 发送验证码
-           $.ajax({
-               url:"{% url 'login:send_email_code' %}",
-               type:"GET",
-               data:{
-                   'email':email,
-                   'send_for':'register_code'
-               },
-               cache:false,
-               success:function (data) {
-                   if(data['status']=='ERROR') {
-                       alert(data['status']);
-                   }
-               }
-           });
-           // 把按钮变灰
+            var email = $('#id_email').val();
+            {#alert(email)#}
+            if (email == '') {
+                $('#tip').text('*邮箱不能为空*');
+                return false;
+            }
+            // 发送验证码
+            $.ajax({
+                url: "{% url 'login:send_email_code' %}",
+                type: "GET",
+                data: {
+                    'email': email,
+                    'send_for': 'register_code'
+                },
+                cache: false,
+                success: function (data) {
+                    if (data['status'] == 'ERROR') {
+                        alert(data['status']);
+                    }
+                }
+            });
+            // 把按钮变灰
             $(this).addClass('disabled');
             $(this).attr('disabled', true);
             var time = 30;
-            $(this).text(time+'s');
-            var interval = setInterval(()=> {
-                if(time<=0){
+            $(this).text(time + 's');
+            var interval = setInterval(() => {
+                if (time <= 0) {
                     clearInterval(interval);
                     $(this).removeClass('disabled');
                     $(this).attr('disabled', false);
                     $(this).text('发送验证码');
                     return false;
                 }
-                time --;
-                $(this).text(time+'s');
-            },1000);
+                time--;
+                $(this).text(time + 's');
+            }, 1000);
         })
     </script>
 {% endblock %}

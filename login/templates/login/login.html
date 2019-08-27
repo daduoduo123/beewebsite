@@ -32,33 +32,40 @@
                                 <span id="tip" class="pull-left text-danger">{{ login_form.non_field_errors }}</span>
                                 <div class="clearfix"></div>
                                 <div style="margin: 6px; display: inline-block">
+                                    <a href="{% get_login_weibo_url %}">
+                                        <img src="{% static 'login/images/weibo.png' %}">
+                                        微博
+                                    </a>&nbsp;&nbsp;&nbsp;&nbsp;
                                     <a href="{% get_login_qq_url %}">
-                                    <img src="{% static 'login/images/qq.jpg' %}">
-                                    使用QQ登录
-                                </a>
-                                <a href="{% get_login_weixin_url %}">
-                                    <img src="{% static 'weixin.png' %}">
-                                    使用微信登录
-                                </a>
+                                        <img src="{% static 'login/images/qq.jpg' %}">
+                                        QQ
+                                    </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <a href="{% get_login_weixin_url %}">
+                                        <img src="{% static 'login/images/weixin.png' %}">
+                                        微信
+                                    </a>
+
                                 </div>
-                                    <input type="submit" value="登录" class="btn btn-primary pull-right">
+                                <input type="submit" value="登录" class="btn btn-primary pull-right">
                             </form>
                         </div>
                     </div>
                     <div>
                         {% if request.GET.from %}
-                            <a style="text-align: center; display: block;" href="{% url 'login:register' %}?from={{ request.GET.from }}">前往注册&gt;&gt;</a>
-                            {% else %}
-                            <a style="text-align: center; display: block;" href="{% url 'login:register' %}?from={{ request.get_full_path }}">前往注册&gt;&gt;</a>
+                            <a style="text-align: center; display: block;"
+                               href="{% url 'login:register' %}?from={{ request.GET.from }}">前往注册&gt;&gt;</a>
+                        {% else %}
+                            <a style="text-align: center; display: block;"
+                               href="{% url 'login:register' %}?from={{ request.get_full_path }}">前往注册&gt;&gt;</a>
                         {% endif %}
                     </div>
                 {% else %}
                     <span>已登录，跳转到首页</span>
                     <script type="text/javascript">
-                        window.location.href='/';
+                        window.location.href = '/';
                     </script>
                 {% endif %}
             </div>
         </div>
-    </div>    
+    </div>
 {% endblock %}

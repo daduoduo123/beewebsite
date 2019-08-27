@@ -1,10 +1,7 @@
 from django.shortcuts import render
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.core.paginator import Paginator
-from django.conf import settings
 from blog.models import Blog
-from django.db.models import Q
 from read_statistics.utils import get_today_hot_data, get_seven_days_read_data, get_yesterday_hot_data, \
     get_7_days_hot_blogs, get_30_days_hot_blogs
 

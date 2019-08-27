@@ -22,13 +22,14 @@
                             <div class="blog">
                                 <h3><a href="{% url 'blog:blog_detail' blog.pk %}">{{ blog.title }}</a></h3>
                                 <p class="blog-info">
-                                    <span class="glyphicon glyphicon-tag"></span> <a href="{% url 'blog:blogs_with_type' blog.blog_type.pk %}">{{ blog.blog_type }}</a>&nbsp;&nbsp;
+                                    <span class="glyphicon glyphicon-tag"></span> <a
+                                        href="{% url 'blog:blogs_with_type' blog.blog_type.pk %}">{{ blog.blog_type }}</a>&nbsp;&nbsp;
                                     <span class="glyphicon glyphicon-time"></span> {{ blog.c_time|date:"Y-m-d" }}&nbsp;&nbsp;
                                     阅读({{ blog.get_read_num }})&nbsp;&nbsp;
                                     评论({% get_comment_count blog %})&nbsp;&nbsp;
                                     点赞({% get_like_count blog %})
                                 </p>
-                                <p>{{ blog.content|striptags|truncatechars:120 }}</p>
+                                <p>{{ blog.content|striptags|truncatechars:120|safe }}</p>
                             </div>
                         {% empty %}
                             <div class="blog">
@@ -84,10 +85,12 @@
                     <div class="panel-body">
                         <ul class="blog-types">
                             {% for blog_type in blog_types %}
-                                <li>
-                                    <a href="{% url 'blog:blogs_with_type' blog_type.pk %}">
+                                <li style="margin-bottom: 2px;">
+                                <span style="padding: 2px;">
+                                    <a class="label {% cycle 'label-default' 'label-primary' 'label-success' 'label-info' 'label-warning' %}" href="{% url 'blog:blogs_with_type' blog_type.pk %}">
                                         {{ blog_type.type_name }} ({{ blog_type.blog_count }})
                                     </a>
+                                </span>
                                 </li>
                             {% empty %}
                                 <li>暂无分类</li>
@@ -100,31 +103,31 @@
                     <div class="panel-body">
                         <ul>
                             {% for blog_date, blog_count in blog_dates.items %}
-                                <li>
-                                    <a href="{% url 'blog:blogs_with_date' blog_date.year blog_date.month %}">
+                                <li style="padding: 2px; ">
+                                    <a class="label {% cycle 'label-default' 'label-primary' 'label-success' 'label-info' 'label-warning' %}" href="{% url 'blog:blogs_with_date' blog_date.year blog_date.month %}">
                                         {{ blog_date|date:"Y年m月" }}({{ blog_count }})
-                                    </a>                                    
+                                    </a>
                                 </li>
                             {% endfor %}
                         </ul>
                     </div>
                 </div>
                 <div class="panel panel-default">
-                <div class="panel-heading">标签云</div>
+                    <div class="panel-heading">标签云</div>
                     <div class="panel-body">
                         <ul>
                             {% for tag in blog_tags %}
-                                <span >
-                                    <a style="color:#{{ color_int }}" href="{% url 'blog:blogs_with_tag' tag.pk %}">{{ tag.name }}</a>
-                                </span>&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="{% url 'blog:blogs_with_tag' tag.pk %}">
+                                    <span class="label {% cycle 'label-default' 'label-primary' 'label-success' 'label-info' 'label-warning' %}">{{ tag.name }}</span></a>
                             {% empty %}
-                            暂无标签！
+                                暂无标签！
                             {% endfor %}
                         </ul>
                     </div>
                 </div>
                 <div style="font-size: 20px; margin-left: 5px">
-                    <a href="{% url 'blog:rss' %}"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> RSS 订阅</a>
+                    <a href="{% url 'blog:rss' %}"><span class="glyphicon glyphicon-hand-right"
+                                                         aria-hidden="true"></span> RSS 订阅</a>
                 </div>
             </div>
         </div>
