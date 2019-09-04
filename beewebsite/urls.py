@@ -32,7 +32,7 @@ urlpatterns = [
     # path('', views.home, namespace='home'),  实例命名空间，   include使用namespace必须在app——name 下使用
     path('contact/', views.contact, name='contact'),
     path('about/', views.about, name='about'),
-
+    path('accounts/', include('allauth.urls')),  # django-allauth第三方包登陆
     path('admin/', admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),  # 加载图片路由
     path('blog/', include('blog.urls')),  # 博客路由分发

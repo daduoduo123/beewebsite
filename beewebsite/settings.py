@@ -22,9 +22,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '34+9we^#3ls9d2)((i4^%xscl(#+xc9k6pfvu%!tlvwk(@1@b!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.hwjbee.fun', 'www.hwjbee.fun']
+# ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.hwjbee.fun', 'www.hwjbee.fun']
+ACCOUNT_EMAIL_REQUIRED = []
 
 # Application definition
 
@@ -45,8 +47,18 @@ INSTALLED_APPS = [
     'notifications',  # 站内提醒
     'my_notifications',  # 加载位置一定要注意前后
     'haystack',  # 全文检索
-    'django.contrib.sitemaps',  # # 生成sitemap
+    'django.contrib.sitemaps',  # 生成sitemap
+    'django.contrib.sites',  # django-allauth依赖
+    # django-allauth
+    # 必须安装的app
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # 下面是第三方账号相关的，选了weibo和github
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.weibo',
 ]
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -139,10 +151,43 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'all_static_files')
 
 # media 配置
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# django-allauth相关设置
+AUTHENTICATION_BACKENDS = (
+    # django admin所使用的用户登录与django-allauth无关
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+# 基本设定
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+LOGIN_REDIRECT_URL = '/'  # 登陆跳转链接
+
+# 邮箱配置
+# 指定发送邮件的后端模块，大多数情况下照抄
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.163.com'
+# smtp服务器端口，默认为25
+EMAIL_PORT = 25
+# 你在发送服务器的用户名
+EMAIL_HOST_USER = 'lantaiit@163.com'
+# 对应客户单授权的的密码， 不是用户的密码
+EMAIL_HOST_PASSWORD = 'qq123456qq'
+EMAIL_SUBJECT_PREFIX = '[个人博客]'
+# 与smtp服务器通信时，是否启动tls链接（安全连接）
+EMAIL_USE_TLS = True
+EMAIL_FROM = 'lantaiit@163.com'  # 你的 QQ 账号
+DEFAULT_FROM_EMAIL = 'lantaiit@163.com'
 
 # 配置ckeditor
 CKEDITOR_UPLOAD_PATH = 'upload'
@@ -168,21 +213,6 @@ CKEDITOR_CONFIGS = {
 
 # 每页有几篇博客的个数
 EACH_PAGE_BLOGS_NUMBER = 5
-
-# 邮箱配置
-# 指定发送邮件的后端模块，大多数情况下照抄
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-EMAIL_HOST = 'smtp.163.com'
-# smtp服务器端口，默认为25
-EMAIL_PORT = 25
-# 你在发送服务器的用户名
-EMAIL_HOST_USER = 'lantaiit@163.com'
-# 对应客户单授权的的密码， 不是用户的密码
-EMAIL_HOST_PASSWORD = 'qq123456qq'
-EMAIL_SUBJECT_PREFIX = '[个人博客]'
-# 与smtp服务器通信时，是否启动tls链接（安全连接）
-EMAIL_USE_TLS = True
 
 # qq登录配置
 QQ_APP_ID = '324234'  # 自己的QQ_appid
